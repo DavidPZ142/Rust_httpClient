@@ -28,7 +28,7 @@ impl HttpClient {
         info!("GET to {}", &url);
         let response = self.client.get(&url).send().await.map_err(|e|{
             error!("Error when getting response: {}", e);
-            HttpError::RequestFailed(e)
+            HttpError::RequestFailed(e.to_string())
         })?;
         let status = response.status();
         if !status.is_success() {
@@ -37,7 +37,7 @@ impl HttpClient {
         }
         let json = response.json::<Value>().await.map_err(|e|{
         error!("Error deserializing response: {}", e);
-        HttpError::DeserializationError(e)})?;
+        HttpError::DeserializationError(e.to_string())})?;
         Ok(json)
     }
 
@@ -47,7 +47,7 @@ impl HttpClient {
         let response = self.client.post(&url).header(header::CONTENT_TYPE, "application/json")
             .json(data).send().await.map_err(|e|{
             error!("Error when posting to {}: {}", &url, e);
-            HttpError::RequestFailed(e)
+            HttpError::RequestFailed(e.to_string())
         })?;
         let status = response.status();
         if !status.is_success() {
@@ -56,8 +56,9 @@ impl HttpClient {
         }
         let json = response.json::<Value>().await.map_err(|e|{
             error!("Error deserializing response: {}", e);
-            HttpError::DeserializationError(e)
+            HttpError::DeserializationError(e.to_string())
         })?;
         Ok(json)
     }
+
 }
